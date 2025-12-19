@@ -177,7 +177,7 @@ app.post('/api/admin/matches', (req, res) => {
 });
 
 // SPA Catch-all
-app.get(['/', '/index.html', '/{*path}'], (req, res) => {
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 

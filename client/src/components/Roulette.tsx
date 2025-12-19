@@ -24,7 +24,7 @@ export interface RouletteRef {
   isSpinning: boolean;
 }
 
-// 🎨 Paleta Premium Navideña Mejorada con gradientes
+// 🎨 Paleta Premium Navideña - 24 Segmentos
 const WHEEL_SEGMENTS = [
   { color: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)', symbol: '🎅', glow: '#dc2626' },
   { color: 'linear-gradient(135deg, #065f46 0%, #064e3b 100%)', symbol: '🎁', glow: '#10b981' },
@@ -38,13 +38,29 @@ const WHEEL_SEGMENTS = [
   { color: 'linear-gradient(135deg, #0e7490 0%, #0891b2 100%)', symbol: '🎀', glow: '#06b6d4' },
   { color: 'linear-gradient(135deg, #c2410c 0%, #9a3412 100%)', symbol: '🕯️', glow: '#f97316' },
   { color: 'linear-gradient(135deg, #047857 0%, #065f46 100%)', symbol: '🧦', glow: '#10b981' },
+  // Segunda mitad - más variedad
+  { color: 'linear-gradient(135deg, #be123c 0%, #9f1239 100%)', symbol: '🎶', glow: '#f43f5e' },
+  { color: 'linear-gradient(135deg, #166534 0%, #14532d 100%)', symbol: '🌟', glow: '#4ade80' },
+  { color: 'linear-gradient(135deg, #92400e 0%, #78350f 100%)', symbol: '🥛', glow: '#fbbf24' },
+  { color: 'linear-gradient(135deg, #0f766e 0%, #115e59 100%)', symbol: '🎿', glow: '#14b8a6' },
+  { color: 'linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%)', symbol: '🧣', glow: '#ef4444' },
+  { color: 'linear-gradient(135deg, #0e7490 0%, #155e75 100%)', symbol: '🏠', glow: '#22d3ee' },
+  { color: 'linear-gradient(135deg, #b45309 0%, #a16207 100%)', symbol: '🌲', glow: '#f59e0b' },
+  { color: 'linear-gradient(135deg, #15803d 0%, #14532d 100%)', symbol: '🎊', glow: '#22c55e' },
+  { color: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)', symbol: '🧤', glow: '#f87171' },
+  { color: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)', symbol: '☃️', glow: '#2dd4bf' },
+  { color: 'linear-gradient(135deg, #c2410c 0%, #9a3412 100%)', symbol: '🎉', glow: '#fb923c' },
+  { color: 'linear-gradient(135deg, #059669 0%, #047857 100%)', symbol: '✨', glow: '#34d399' },
 ];
 
-// Colores sólidos para SVG (ya que SVG no soporta gradientes en fill directamente del mismo modo)
+// Colores sólidos para SVG
 const WHEEL_COLORS = [
   '#dc2626', '#065f46', '#d97706', '#059669',
   '#b91c1c', '#0d9488', '#ea580c', '#15803d',
-  '#dc2626', '#0e7490', '#c2410c', '#047857'
+  '#dc2626', '#0e7490', '#c2410c', '#047857',
+  '#be123c', '#166534', '#92400e', '#0f766e',
+  '#991b1b', '#0e7490', '#b45309', '#15803d',
+  '#dc2626', '#0d9488', '#c2410c', '#059669',
 ];
 
 // 🎅 Frases navideñas variadas de Santa
@@ -119,17 +135,17 @@ const Roulette = forwardRef<RouletteRef, RouletteProps>(({ onSpin, onFinish }, r
 
     const interval = setInterval(() => {
       const newSparkles: SparkleItem[] = [];
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < 6; i++) {
         newSparkles.push({
           id: Date.now() + i + Math.random(),
           x: `${Math.random() * 100}%`,
           y: `${Math.random() * 100}%`,
-          size: 4 + Math.random() * 8,
-          delay: Math.random() * 0.3,
+          size: 4 + Math.random() * 10,
+          delay: Math.random() * 0.2,
         });
       }
-      setSparkles(prev => [...prev.slice(-20), ...newSparkles]);
-    }, 150);
+      setSparkles(prev => [...prev.slice(-40), ...newSparkles]);
+    }, 100);
 
     return () => clearInterval(interval);
   }, [isSpinning]);
@@ -375,13 +391,13 @@ const Roulette = forwardRef<RouletteRef, RouletteProps>(({ onSpin, onFinish }, r
         className="decorative-ring"
         style={{ width: outerRingSize, height: outerRingSize }}
       >
-        {Array.from({ length: 24 }).map((_, i) => (
+        {Array.from({ length: 36 }).map((_, i) => (
           <div
             key={i}
             className={`ring-light ${isSpinning ? 'active' : ''}`}
             style={{
-              transform: `rotate(${i * 15}deg) translateY(-${outerRingSize / 2 - 8}px)`,
-              animationDelay: `${i * 0.05}s`,
+              transform: `rotate(${i * 10}deg) translateY(-${outerRingSize / 2 - 8}px)`,
+              animationDelay: `${i * 0.03}s`,
             }}
           />
         ))}
@@ -405,7 +421,10 @@ const Roulette = forwardRef<RouletteRef, RouletteProps>(({ onSpin, onFinish }, r
         style={{
           width: wheelSize,
           height: wheelSize,
-          filter: isSpinning ? `brightness(${1 + intensity * 0.3}) saturate(${1 + intensity * 0.5})` : 'none'
+          filter: isSpinning
+            ? `brightness(${1 + intensity * 0.3}) saturate(${1 + intensity * 0.5}) blur(${intensity * 1.5}px)`
+            : 'none',
+          transition: 'filter 0.3s ease-out'
         }}
       >
         <svg
