@@ -143,6 +143,52 @@ app.post('/api/reset', (req, res) => {
 // Admin: Get all matches (protected with password)
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'herwingx-dev';
 
+// Admin: Add new participant (without restarting server)
+app.post('/api/admin/add-participant', (req, res) => {
+  const { password, name } = req.body;
+
+  if (password !== ADMIN_PASSWORD) {
+    return res.status(401).json({ error: "Contraseña incorrecta" });
+  }
+
+  if (!name || !name.trim()) {
+    return res.status(400).json({ error: "El nombre es requerido" });
+  }
+
+  try {
+    const participants = getParticipantsData();
+
+    // Generate new ID (max ID + 1)
+    const maxId = participants.reduce((max, p) => Math.max(max, parseInt(p.id) || 0), 0);
+    const newId = String(maxId + 1);
+
+    // Check if name already exists
+    const normalizedName = name.trim().toUpperCase();
+    const exists = participants.some(p => p.name.toUpperCase() === normalizedName);
+    if (exists) {
+      return res.status(409).json({ error: "Este participante ya existe" });
+    }
+
+    // Add new participant
+    const newParticipant = { id: newId, name: name.trim().toUpperCase() };
+    participants.push(newParticipant);
+
+    // Save to file
+    fs.writeFileSync(participantsPath, JSON.stringify(participants, null, 2), 'utf8');
+
+    console.log(`✅ Nuevo participante agregado: ${newParticipant.name} (ID: ${newId})`);
+
+    res.json({
+      message: "Participante agregado exitosamente",
+      participant: newParticipant,
+      total: participants.length
+    });
+  } catch (err) {
+    console.error("Error adding participant:", err);
+    res.status(500).json({ error: "Error al guardar participante" });
+  }
+});
+
 app.post('/api/admin/matches', (req, res) => {
   const { password } = req.body;
 

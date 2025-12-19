@@ -18,6 +18,7 @@ interface AdminData {
   matches: Match[];
   pending: PendingParticipant[];
   completed: number;
+  total: number;
 }
 
 export default function AdminPanel() {
@@ -26,6 +27,11 @@ export default function AdminPanel() {
   const [data, setData] = useState<AdminData | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Estado para agregar participante
+  const [newName, setNewName] = useState('');
+  const [addingParticipant, setAddingParticipant] = useState(false);
+  const [addSuccess, setAddSuccess] = useState('');
 
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -73,7 +79,41 @@ export default function AdminPanel() {
       setData(null);
       setPassword('');
       setError('');
+      setNewName('');
+      setAddSuccess('');
     }, 300);
+  };
+
+  // Agregar nuevo participante
+  const handleAddParticipant = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newName.trim() || addingParticipant) return;
+
+    setAddingParticipant(true);
+    setAddSuccess('');
+    setError('');
+
+    try {
+      const res = await axios.post(`${API_URL}/admin/add-participant`, {
+        password,
+        name: newName.trim()
+      });
+
+      setAddSuccess(`✅ ${res.data.participant.name} agregado (Total: ${res.data.total})`);
+      setNewName('');
+
+      // Refrescar datos
+      const refreshRes = await axios.post(`${API_URL}/admin/matches`, { password });
+      setData(refreshRes.data);
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response) {
+        setError(err.response.data.error || 'Error al agregar');
+      } else {
+        setError('Error de conexión');
+      }
+    } finally {
+      setAddingParticipant(false);
+    }
   };
 
   return (
@@ -171,19 +211,60 @@ export default function AdminPanel() {
                 </div>
               </div>
 
+              {/* SECCIÓN: Agregar Nuevo Participante */}
+              <div className="section add-section">
+                <h3 className="section-title add">
+                  <span>➕</span>
+                  Agregar Participante
+                </h3>
+                <form onSubmit={handleAddParticipant} className="add-form">
+                  <input
+                    type="text"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    placeholder="APELLIDO PATERNO NOMBRE..."
+                    className="admin-input add-input"
+                    autoComplete="off"
+                  />
+                  <button
+                    type="submit"
+                    disabled={addingParticipant || !newName.trim()}
+                    className="add-btn"
+                  >
+                    {addingParticipant ? (
+                      <span className="loading-spinner small" />
+                    ) : (
+                      '🎁 Agregar'
+                    )}
+                  </button>
+                </form>
+                {addSuccess && (
+                  <div className="success-alert">{addSuccess}</div>
+                )}
+                {error && data && (
+                  <div className="error-alert small">
+                    <span className="error-icon">⚠️</span>
+                    {error}
+                  </div>
+                )}
+                <p className="add-hint">
+                  💡 Los nuevos participantes aparecen inmediatamente sin reiniciar
+                </p>
+              </div>
+
               {/* Lista de Asignaciones */}
               <div className="section">
                 <h3 className="section-title">
                   <span>📜</span>
-                  Asignaciones
+                  Asignaciones ({data.matches.length})
                 </h3>
                 <div className="matches-scroll">
                   {data.matches.length > 0 ? (
                     data.matches.map((m, i) => (
                       <div key={i} className="match-item">
-                        <span className="giver">{m.spinner}</span>
+                        <span className="giver" title={m.spinner}>{m.spinner}</span>
                         <span className="arrow">→</span>
-                        <span className="receiver">{m.receiver}</span>
+                        <span className="receiver" title={m.receiver}>{m.receiver}</span>
                       </div>
                     ))
                   ) : (
@@ -200,11 +281,11 @@ export default function AdminPanel() {
                 <div className="section pending-section">
                   <h4 className="section-title warning">
                     <span>⏳</span>
-                    Faltan por girar
+                    Faltan por girar ({data.pending.length})
                   </h4>
                   <div className="pending-tags">
                     {data.pending.map(p => (
-                      <span key={p.id} className="pending-tag">{p.name}</span>
+                      <span key={p.id} className="pending-tag" title={p.name}>{p.name}</span>
                     ))}
                   </div>
                 </div>
@@ -278,7 +359,7 @@ export default function AdminPanel() {
           left: 0;
           height: 100vh;
           width: 100%;
-          max-width: 380px;
+          max-width: 420px;
           background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
           border-right: 1px solid rgba(255, 255, 255, 0.1);
           z-index: 999;
@@ -404,6 +485,25 @@ export default function AdminPanel() {
           margin-bottom: 1rem;
         }
 
+        .error-alert.small {
+          padding: 0.5rem 0.75rem;
+          font-size: 0.8rem;
+          margin-top: 0.5rem;
+          margin-bottom: 0;
+        }
+
+        .success-alert {
+          width: 100%;
+          padding: 0.75rem 1rem;
+          background: rgba(52, 211, 153, 0.1);
+          border: 1px solid rgba(52, 211, 153, 0.2);
+          border-radius: 10px;
+          color: #6ee7b7;
+          font-size: 0.9rem;
+          margin-top: 0.75rem;
+          text-align: center;
+        }
+
         .error-icon {
           font-size: 1rem;
         }
@@ -442,6 +542,12 @@ export default function AdminPanel() {
           border-top-color: #1f2937;
           border-radius: 50%;
           animation: spin 0.8s linear infinite;
+        }
+
+        .loading-spinner.small {
+          width: 16px;
+          height: 16px;
+          border-width: 2px;
         }
 
         @keyframes spin {
@@ -508,6 +614,61 @@ export default function AdminPanel() {
           color: #fb923c;
         }
 
+        .section-title.add {
+          color: #22d3ee;
+        }
+
+        /* Add Participant Section */
+        .add-section {
+          background: rgba(34, 211, 238, 0.05);
+          border: 1px solid rgba(34, 211, 238, 0.15);
+        }
+
+        .add-form {
+          display: flex;
+          gap: 0.5rem;
+        }
+
+        .add-input {
+          flex: 1;
+          font-size: 0.85rem;
+          padding: 0.75rem 1rem;
+          text-transform: uppercase;
+        }
+
+        .add-btn {
+          padding: 0.75rem 1rem;
+          background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%);
+          border: none;
+          border-radius: 12px;
+          color: #0f172a;
+          font-size: 0.85rem;
+          font-weight: 600;
+          cursor: pointer;
+          white-space: nowrap;
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
+          transition: all 0.2s;
+        }
+
+        .add-btn:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(34, 211, 238, 0.3);
+        }
+
+        .add-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        .add-hint {
+          margin: 0.75rem 0 0 0;
+          font-size: 0.75rem;
+          color: #67e8f9;
+          opacity: 0.7;
+        }
+
         .matches-scroll {
           max-height: 280px;
           overflow-y: auto;
@@ -530,7 +691,7 @@ export default function AdminPanel() {
           background: rgba(255, 255, 255, 0.02);
           border-radius: 8px;
           margin-bottom: 0.5rem;
-          font-size: 0.9rem;
+          font-size: 0.8rem;
         }
 
         .match-item:last-child {
@@ -540,11 +701,16 @@ export default function AdminPanel() {
         .giver {
           flex: 1;
           color: #cbd5e1;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          max-width: 45%;
         }
 
         .arrow {
           color: #475569;
-          margin: 0 0.75rem;
+          margin: 0 0.5rem;
+          flex-shrink: 0;
         }
 
         .receiver {
@@ -552,6 +718,10 @@ export default function AdminPanel() {
           text-align: right;
           color: #34d399;
           font-weight: 600;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          max-width: 45%;
         }
 
         .empty-state {
@@ -586,13 +756,26 @@ export default function AdminPanel() {
           background: rgba(251, 146, 60, 0.1);
           border-radius: 20px;
           color: #fdba74;
-          font-size: 0.8rem;
+          font-size: 0.7rem;
+          max-width: 180px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         /* Responsive */
-        @media (max-width: 400px) {
+        @media (max-width: 450px) {
           .admin-panel {
             max-width: 100%;
+          }
+          
+          .add-form {
+            flex-direction: column;
+          }
+          
+          .add-btn {
+            width: 100%;
+            justify-content: center;
           }
         }
       `}</style>

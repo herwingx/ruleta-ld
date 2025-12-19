@@ -131,12 +131,13 @@ export default function SearchSelect({ options, value, onChange, placeholder = "
                     role="option"
                     aria-selected={isSelected}
                     className={`search-select-option ${isSelected ? 'selected' : ''}`}
+                    title={option.name}
                   >
                     {/* Indicador visual de selección Premium (check dorado o árbol) */}
                     <span className="search-select-option-icon">
                       {isSelected ? '✨' : '🎄'}
                     </span>
-                    {option.name}
+                    <span className="search-select-option-name">{option.name}</span>
                   </button>
                 );
               })

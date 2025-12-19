@@ -242,7 +242,7 @@ body {
 /* SearchSelect Container Fix */
 .search-select-container {
   width: 100%;
-  max-width: 380px;
+  max-width: 480px;
   position: relative;
   z-index: var(--z-content);
   margin: 0 auto 1rem auto;
@@ -263,6 +263,14 @@ body {
   cursor: pointer;
   transition: 0.3s;
   width: 100%;
+}
+
+.search-select-value {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.95rem;
 }
 
 .search-select-placeholder {
@@ -309,7 +317,7 @@ body {
 }
 
 .search-select-options {
-  max-height: 200px;
+  max-height: 250px;
   overflow-y: auto;
 }
 
@@ -323,9 +331,18 @@ body {
   cursor: pointer;
   transition: 0.2s;
   font-family: var(--font-body);
+  font-size: 0.85rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  overflow: hidden;
+}
+
+.search-select-option-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
 }
 
 .search-select-option:hover {
