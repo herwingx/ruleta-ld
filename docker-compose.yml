@@ -8,7 +8,7 @@ services:
       - PORT=3000
     volumes:
       - ./server/participants.json:/app/server/participants.json
-      - ./server/santa.db:/app/server/santa.db
+      - ./server/santa_v2.db:/app/server/santa_v2.db
     restart: unless-stopped
     networks:
       - app-network
