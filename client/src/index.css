@@ -1,0 +1,404 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Mountains+of+Christmas:wght@700&family=Quicksand:wght@400;600;700&display=swap');
+
+:root {
+  /* 🎨 Paleta Midnight Luxury (Sincronizada con Landscape) */
+  --color-bg-deep: #050a10;
+  /* Casi negro */
+  --color-bg-radial: radial-gradient(circle at 50% -20%, #1a2c3a 0%, #050a10 60%);
+
+  --color-red: #c41e3a;
+  --color-red-dark: #74001b;
+  /* Más profundo, color vino */
+
+  --color-green: #1c493d;
+  /* Coincide con .hill-fg del landscape */
+  --color-green-light: #2d6a52;
+  --color-green-neon: #00ff9d;
+  /* Solo para acentos pequeños */
+
+  --color-gold: #fbbf24;
+  --color-gold-glow: #f59e0b;
+  --color-text-white: #f1f5f9;
+
+  /* Texturas UI */
+  --glass-bg: rgba(10, 20, 30, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+
+  /* Fuentes */
+  --font-display: 'Mountains of Christmas', cursive;
+  --font-hand: 'Dancing Script', cursive;
+  --font-body: 'Quicksand', sans-serif;
+
+  /* Capas Z (El Sistema Sagrado) */
+  --z-bg: -1;
+  --z-grid: 0;
+  --z-landscape: 5;
+  /* Landscape va aquí */
+  --z-ui-base: 50;
+  /* Contenedor UI */
+  --z-content: 60;
+  /* Contenido principal sobre landscape */
+  --z-overlay: 100;
+  /* Modales / Confetti */
+}
+
+/* Reset y Base */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--color-bg-deep);
+  /* Fallback */
+  color: var(--color-text-white);
+  font-family: var(--font-body);
+  overflow: hidden;
+  /* Vital para la app a pantalla completa */
+  width: 100vw;
+  height: 100vh;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  /* El background real va aquí para permitir capas */
+  background: var(--color-bg-radial);
+}
+
+/* 🌟 Grid Overlay (Sutil) */
+.grid-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-grid);
+  opacity: 0.3;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(circle at 50% 50%, black 40%, transparent 90%);
+  pointer-events: none;
+}
+
+/* --- UI KIT PREMIUM --- */
+
+/* Títulos */
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 7vw, 4.5rem);
+  font-weight: 700;
+  color: var(--color-gold);
+  text-shadow:
+    0 4px 0 var(--color-red-dark),
+    0 0 30px rgba(251, 191, 36, 0.3);
+  margin: 0 0 1.5rem 0;
+  letter-spacing: 2px;
+  line-height: 1.15;
+  text-align: center;
+  width: 100%;
+}
+
+.title span {
+  display: block;
+  text-align: center;
+  width: 100%;
+}
+
+.title-sub {
+  font-size: 0.5em;
+  opacity: 0.9;
+  margin-bottom: 0.3em;
+  letter-spacing: 3px;
+  text-shadow:
+    0 2px 0 var(--color-red-dark),
+    0 0 20px rgba(251, 191, 36, 0.4);
+}
+
+.title-main {
+  font-size: 1em;
+}
+
+.subtitle {
+  font-family: var(--font-body);
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  font-weight: 500;
+  color: var(--color-text-white);
+  margin: 0 0 2rem 0;
+  opacity: 0.9;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+  line-height: 1.5;
+}
+
+/* Tip text - Posición fija inferior para no afectar layout */
+.tip-text {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0.6;
+  font-size: 0.85rem;
+  font-family: var(--font-body);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  backdrop-filter: blur(5px);
+  white-space: nowrap;
+  z-index: 50;
+  margin: 0;
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Inputs GLASS (Crucial: Eliminamos el fondo blanco plano) */
+.input-select {
+  font-family: var(--font-body);
+  width: 100%;
+  max-width: 400px;
+  padding: 1rem 1.5rem;
+  font-size: 1.1rem;
+  color: white;
+
+  /* Efecto Vidrio Esmerilado Oscuro */
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  border-radius: 16px;
+  margin-bottom: 2rem;
+  transition: all 0.3s ease;
+  box-shadow: var(--glass-shadow);
+
+  /* Icono personalizado */
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fbbf24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.5rem;
+}
+
+.input-select option {
+  background-color: #0f172a;
+  /* Fondo oscuro para dropdown nativo */
+  color: white;
+}
+
+.input-select:focus {
+  outline: none;
+  border-color: var(--color-gold);
+  background: rgba(20, 30, 45, 0.85);
+  box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.15);
+}
+
+/* Botón 3D "Jelly" */
+.btn {
+  font-family: var(--font-display);
+  position: relative;
+  background: linear-gradient(to bottom, #d13045, #9c152a);
+  color: white;
+  border: none;
+  padding: 1.2rem 3.5rem;
+  font-size: clamp(1.4rem, 4vw, 1.8rem);
+  cursor: pointer;
+  border-radius: 50px;
+  transition: transform 0.1s, box-shadow 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+
+  /* Bordes 3D */
+  box-shadow:
+    0 8px 0 #610416,
+    /* Sombra sólida abajo para volumen */
+    0 15px 20px rgba(0, 0, 0, 0.4),
+    /* Sombra difusa */
+    inset 0 2px 0 rgba(255, 255, 255, 0.3);
+  /* Brillo arriba */
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(6px);
+  /* Efecto de presionar */
+  box-shadow:
+    0 2px 0 #610416,
+    0 5px 10px rgba(0, 0, 0, 0.3),
+    inset 0 2px 0 rgba(255, 255, 255, 0.3);
+}
+
+.btn:hover:not(:disabled):not(:active) {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+.btn:disabled {
+  background: #555;
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* SearchSelect Container Fix */
+.search-select-container {
+  width: 100%;
+  max-width: 380px;
+  position: relative;
+  z-index: var(--z-content);
+  margin: 0 auto 1rem auto;
+}
+
+.search-select-trigger {
+  /* Usar mismo estilo glass que el input normal */
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(12px);
+  color: white;
+  border-radius: 16px;
+  padding: 1rem 1.5rem;
+  box-shadow: var(--glass-shadow);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: 0.3s;
+  width: 100%;
+}
+
+.search-select-placeholder {
+  opacity: 0.5;
+  font-style: italic;
+}
+
+.search-select-trigger:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.search-select-dropdown {
+  /* Fondo sólido oscuro para el dropdown abierto */
+  background: #0f172a;
+  border: 1px solid var(--color-gold);
+  color: white;
+  border-radius: 12px;
+  z-index: 200;
+  /* Encima de todo */
+  margin-top: 8px;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.search-select-search-wrapper {
+  padding: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.search-select-search {
+  background: transparent;
+  border: none;
+  color: white;
+  width: 100%;
+  outline: none;
+  font-family: var(--font-body);
+}
+
+.search-select-options {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.search-select-option {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0.8rem 1rem;
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: 0.2s;
+  font-family: var(--font-body);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.search-select-option:hover {
+  background: rgba(251, 191, 36, 0.1);
+  /* Gold tint */
+  color: var(--color-gold);
+}
+
+.search-select-option.selected {
+  background: rgba(251, 191, 36, 0.2);
+  color: var(--color-gold);
+  font-weight: bold;
+}
+
+/* --- EFECTOS HOHOHO --- */
+.hohoho {
+  font-family: var(--font-display);
+  font-weight: bold;
+  font-size: clamp(2rem, 5vw, 4rem);
+  color: #fff;
+  text-shadow:
+    0 0 10px var(--color-red),
+    0 0 20px var(--color-red),
+    0 0 40px var(--color-gold);
+  pointer-events: none;
+  animation: floatHoho 3s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes floatHoho {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.5) rotate(-10deg);
+  }
+
+  10% {
+    opacity: 1;
+    transform: translateY(-20px) scale(1.2) rotate(10deg);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-200px) scale(1) rotate(-20deg);
+  }
+}
+
+/* Modales y Z-Index Helpers */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
+  z-index: var(--z-overlay);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Ensure root takes full height to prevent unexpected scroll on mobile */
+#root {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
+}

@@ -1,0 +1,21 @@
+services:
+  app:
+    container_name: secret-santa-app
+    build: .
+    ports:
+      - "3001:3000"
+    environment:
+      - PORT=3000
+    volumes:
+      - ./server/participants.json:/app/server/participants.json
+      - ./server/santa.db:/app/server/santa.db
+    restart: unless-stopped
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+    # To use with Nginx Proxy Manager, uncomment below and remove 'driver: bridge'
+    # external: true
+    # name: nginx_proxy_manager_default

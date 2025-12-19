@@ -1,0 +1,583 @@
+/* ========================================
+   LANDSCAPE NAVIDEÑO PREMIUM
+   ======================================== */
+
+:root {
+  /* Paleta de verdes naturales de pino */
+  --c-tree-deep: #062015;
+  --c-tree-mid: #0d3a28;
+  --c-tree-light: #1a5c40;
+  --c-tree-highlight: #2a7855;
+  --sway-duration: 12s;
+  --c-sky-dark: #050a10;
+  --c-snow: #e8f4ff;
+}
+
+/* --- CONTENEDOR PRINCIPAL --- */
+.landscape-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50vh;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(to top,
+      #0a1510 0%,
+      #061210 40%,
+      #050a10 100%);
+  mask-image: linear-gradient(to top, black 75%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to top, black 75%, transparent 100%);
+}
+
+/* --- ATMÓSFERA Y CIELO --- */
+.aurora-glow {
+  position: absolute;
+  top: -50%;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 80% 10%, rgba(59, 130, 246, 0.06) 0%, transparent 50%);
+  animation: auroraShift 20s ease-in-out infinite alternate;
+  z-index: 1;
+}
+
+@keyframes auroraShift {
+  0% {
+    opacity: 0.6;
+    transform: translateX(-5%);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(5%);
+  }
+}
+
+/* Luna */
+.moon {
+  position: absolute;
+  top: 5%;
+  right: 15%;
+  width: 60px;
+  height: 60px;
+  z-index: 2;
+}
+
+.moon-surface {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%,
+      #fffef0 0%,
+      #f0e9d2 40%,
+      #d4c9a8 100%);
+  box-shadow:
+    0 0 40px 10px rgba(255, 250, 220, 0.15),
+    inset -8px -8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.moon-glow {
+  position: absolute;
+  inset: -100%;
+  background: radial-gradient(circle,
+      rgba(255, 250, 220, 0.1) 0%,
+      transparent 60%);
+  animation: moonPulse 8s ease-in-out infinite;
+}
+
+@keyframes moonPulse {
+
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+}
+
+/* Estrellas del cielo */
+.sky-stars {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.sky-star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: radial-gradient(circle, #ffffd0 0%, #ffd700 100%);
+  border-radius: 50%;
+  box-shadow: 0 0 3px 1px rgba(255, 215, 0, 0.4);
+  animation: starTwinkle 4s ease-in-out infinite alternate;
+}
+
+@keyframes starTwinkle {
+  0% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+/* --- NIEVE CAYENDO EN PAISAJE --- */
+.snow-container {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  overflow: hidden;
+}
+
+.snow-layer {
+  position: absolute;
+  top: -100%;
+  left: -10%;
+  width: 120%;
+  height: 200%;
+  background-repeat: repeat;
+  opacity: 0.9;
+  animation: snowFallNatural linear infinite;
+}
+
+/* Capa frontal - Copos grandes y definidos */
+.layer-1 {
+  animation-duration: 10s;
+  background-size: 400px 400px;
+  background-image:
+    radial-gradient(3px 3px at 10% 20%, rgba(255, 255, 255, 0.95) 50%, transparent 100%),
+    radial-gradient(2.5px 2.5px at 30% 55%, rgba(255, 255, 255, 0.9) 50%, transparent 100%),
+    radial-gradient(3px 3px at 50% 10%, white 50%, transparent 100%),
+    radial-gradient(2px 2px at 70% 70%, rgba(255, 255, 255, 0.85) 50%, transparent 100%),
+    radial-gradient(3px 3px at 90% 35%, rgba(255, 255, 255, 0.95) 50%, transparent 100%);
+}
+
+/* Capa media - Copos medianos */
+.layer-2 {
+  animation-duration: 16s;
+  animation-delay: -3s;
+  opacity: 0.7;
+  background-size: 300px 300px;
+  background-image:
+    radial-gradient(2px 2px at 15% 40%, rgba(255, 255, 255, 0.8) 50%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 40% 15%, rgba(255, 255, 255, 0.75) 50%, transparent 100%),
+    radial-gradient(2px 2px at 60% 60%, rgba(255, 255, 255, 0.8) 50%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 85% 25%, rgba(255, 255, 255, 0.7) 50%, transparent 100%);
+}
+
+/* Capa fondo - Copos pequeños y suaves */
+.layer-3 {
+  animation-duration: 25s;
+  animation-delay: -8s;
+  opacity: 0.4;
+  filter: blur(0.5px);
+  background-size: 250px 250px;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(255, 255, 255, 0.6) 50%, transparent 100%),
+    radial-gradient(1px 1px at 45% 70%, rgba(255, 255, 255, 0.5) 50%, transparent 100%),
+    radial-gradient(1px 1px at 75% 20%, rgba(255, 255, 255, 0.55) 50%, transparent 100%),
+    radial-gradient(1px 1px at 95% 55%, rgba(255, 255, 255, 0.5) 50%, transparent 100%);
+}
+
+@keyframes snowFallNatural {
+  0% {
+    transform: translateY(0) translateX(0);
+  }
+
+  100% {
+    transform: translateY(50%) translateX(1%);
+  }
+}
+
+/* --- COLINAS --- */
+.hill {
+  position: absolute;
+  left: -10%;
+  width: 120%;
+  border-radius: 50% 50% 0 0;
+}
+
+.hill-far {
+  bottom: 60%;
+  height: 50%;
+  background: linear-gradient(180deg, #040d0a 0%, #020805 100%);
+  opacity: 0.7;
+  z-index: 0;
+  filter: blur(4px);
+}
+
+.hill-bg {
+  bottom: 20%;
+  height: 60%;
+  background: linear-gradient(180deg, #071510 0%, #030a08 100%);
+  z-index: 1;
+  filter: blur(2px);
+}
+
+.hill-mid {
+  bottom: 0;
+  height: 40%;
+  background: linear-gradient(180deg, #0c2a1f 0%, #051510 100%);
+  z-index: 4;
+  /* Bajado para que árboles de profundidad media (z-index 5) estén encima */
+  transform: skewY(-1.5deg);
+}
+
+.hill-fg {
+  bottom: -40px;
+  height: 22%;
+  background: linear-gradient(180deg, #103828 0%, #071a12 100%);
+  z-index: 9;
+  /* Bajado para que árboles frontales (z-index 10) estén encima */
+  box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Capa de nieve en el suelo */
+.ground-snow {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 15px;
+  background: linear-gradient(to top,
+      rgba(232, 244, 255, 0.15) 0%,
+      transparent 100%);
+  z-index: 13;
+}
+
+/* --- BOSQUE --- */
+.forest-layer {
+  position: absolute;
+  inset: 0;
+}
+
+.tree {
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform-origin: bottom center;
+  transform: scale(var(--scale));
+  animation: organicSway var(--sway-duration) ease-in-out infinite;
+  animation-delay: var(--delay);
+}
+
+/* Niveles de profundidad */
+.tree.depth-back {
+  z-index: 3;
+  /* Por encima de hill-bg (z-1) y hill-mid (z-4) no, wait. */
+  bottom: 30%;
+  filter: blur(1.5px) brightness(0.6) saturate(0.7);
+  opacity: 0.85;
+}
+
+.tree.depth-middle {
+  z-index: 6;
+  /* Por encima de hill-mid (z-4) */
+  bottom: 12%;
+  filter: brightness(0.85) saturate(0.9);
+}
+
+.tree.depth-front {
+  z-index: 15;
+  /* Por encima de hill-fg (z-9) */
+  bottom: 10px;
+  /* Aseguramos que el tronco salga del suelo visible */
+  filter: drop-shadow(0 15px 20px rgba(0, 0, 0, 0.6));
+}
+
+/* Estrella en la punta */
+.tree-star {
+  position: absolute;
+  top: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 25;
+}
+
+.star-icon {
+  font-size: 1.5rem;
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.8));
+  animation: starGlow 2s ease-in-out infinite alternate;
+}
+
+.star-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.4) 0%, transparent 70%);
+  animation: starGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes starGlow {
+  0% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+}
+
+/* Cuerpo del árbol */
+.tree-body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Ramas - Forma triangular de pino */
+.branch {
+  position: relative;
+  background: linear-gradient(160deg, var(--c-tree-light) 0%, var(--c-tree-mid) 50%, var(--c-tree-deep) 100%);
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  margin-bottom: -45px;
+}
+
+.branch-highlight {
+  position: absolute;
+  top: 20%;
+  left: 30%;
+  width: 40%;
+  height: 30%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+.tier-top {
+  width: 90px;
+  height: 75px;
+  z-index: 13;
+  background: linear-gradient(160deg, #1e8a5f 0%, #156648 40%, #0a3425 100%);
+}
+
+.tier-middle {
+  width: 130px;
+  height: 100px;
+  z-index: 12;
+  background: linear-gradient(160deg, var(--c-tree-light) 0%, var(--c-tree-mid) 50%, var(--c-tree-deep) 100%);
+}
+
+.tier-bottom {
+  width: 170px;
+  height: 125px;
+  z-index: 11;
+  background: linear-gradient(160deg, var(--c-tree-mid) 0%, var(--c-tree-deep) 60%, #020f0a 100%);
+}
+
+/* Nieve en las ramas */
+.snow-patch {
+  position: absolute;
+  background: linear-gradient(to bottom,
+      rgba(232, 244, 255, 0.9) 0%,
+      rgba(200, 220, 240, 0.6) 100%);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  z-index: 14;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Tronco - Más visible y claro */
+.trunk {
+  position: relative;
+  width: 24px;
+  height: 45px;
+  background: linear-gradient(90deg,
+      #2a1810 0%,
+      #5d3a26 30%,
+      #6b442e 50%,
+      #5d3a26 70%,
+      #2a1810 100%);
+  z-index: 10;
+  margin-top: -12px;
+  /* Mayor solapamiento para naturalidad */
+  border-radius: 0 0 4px 4px;
+  box-shadow:
+    0 4px 10px rgba(0, 0, 0, 0.3),
+    inset 2px 0 5px rgba(255, 255, 255, 0.1);
+}
+
+.trunk-texture {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg,
+      transparent 0px,
+      transparent 8px,
+      rgba(0, 0, 0, 0.1) 8px,
+      rgba(0, 0, 0, 0.1) 10px);
+  border-radius: inherit;
+}
+
+/* Sombra del árbol */
+.tree-shadow {
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 15px;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.4) 0%, transparent 70%);
+  z-index: 9;
+}
+
+/* --- LUCES NAVIDEÑAS --- */
+.light {
+  position: absolute;
+  border-radius: 50%;
+  z-index: 20;
+  transform: translate(-50%, -50%);
+  animation: lightTwinkle 2s ease-in-out infinite alternate;
+}
+
+.light.red {
+  background: radial-gradient(circle, #ff6666 30%, #cc0000 100%);
+  box-shadow: 0 0 6px 2px rgba(255, 0, 0, 0.5);
+}
+
+.light.green {
+  background: radial-gradient(circle, #66ff88 30%, #00cc44 100%);
+  box-shadow: 0 0 6px 2px rgba(0, 255, 68, 0.5);
+}
+
+.light.blue {
+  background: radial-gradient(circle, #66aaff 30%, #0066cc 100%);
+  box-shadow: 0 0 6px 2px rgba(0, 102, 255, 0.5);
+}
+
+.light.yellow {
+  background: radial-gradient(circle, #ffff88 30%, #ffcc00 100%);
+  box-shadow: 0 0 6px 2px rgba(255, 204, 0, 0.5);
+}
+
+.light.pink {
+  background: radial-gradient(circle, #ff99cc 30%, #ff3399 100%);
+  box-shadow: 0 0 6px 2px rgba(255, 51, 153, 0.5);
+}
+
+.light.white {
+  background: radial-gradient(circle, #ffffff 30%, #ccddff 100%);
+  box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.6);
+}
+
+@keyframes lightTwinkle {
+  0% {
+    opacity: 0.7;
+    transform: translate(-50%, -50%) scale(0.85);
+    filter: brightness(0.8);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+    filter: brightness(1.1);
+  }
+}
+
+/* --- ANIMACIONES --- */
+@keyframes organicSway {
+
+  0%,
+  100% {
+    transform: rotate(-0.8deg) scale(var(--scale));
+  }
+
+  50% {
+    transform: rotate(0.8deg) scale(var(--scale));
+  }
+}
+
+/* --- EFECTOS DE ATMÓSFERA --- */
+.vignette-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 120% 100% at 50% 100%,
+      transparent 40%,
+      rgba(5, 10, 16, 0.6) 100%);
+  z-index: 18;
+  pointer-events: none;
+}
+
+.fog-layer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 30%;
+  background: linear-gradient(to top,
+      rgba(8, 20, 16, 0.4) 0%,
+      transparent 100%);
+  z-index: 11;
+  animation: fogDrift 30s ease-in-out infinite alternate;
+}
+
+@keyframes fogDrift {
+  0% {
+    opacity: 0.6;
+    transform: translateX(-2%);
+  }
+
+  100% {
+    opacity: 0.8;
+    transform: translateX(2%);
+  }
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+  .landscape-container {
+    height: 40vh;
+  }
+
+  .moon {
+    width: 40px;
+    height: 40px;
+    right: 10%;
+  }
+
+  .tree-star .star-icon {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .landscape-container {
+    height: 35vh;
+  }
+
+  .tier-top {
+    width: 70px;
+    height: 60px;
+  }
+
+  .tier-middle {
+    width: 100px;
+    height: 80px;
+  }
+
+  .tier-bottom {
+    width: 130px;
+    height: 100px;
+  }
+
+  .branch {
+    margin-bottom: -35px;
+  }
+}

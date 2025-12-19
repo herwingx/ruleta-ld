@@ -1,0 +1,207 @@
+/* CONTENEDOR MAESTRO DE LA PANTALLA */
+.screen-container {
+  width: 100%;
+  height: 100vh;
+  /* Ocupa toda la altura */
+  padding: 1.5rem;
+
+  /* SUPER IMPORTANTE: Elevar contenido sobre los árboles */
+  z-index: var(--z-content);
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* Centrar verticalmente por defecto */
+  align-items: center;
+
+  overflow-y: auto;
+  /* Scroll de seguridad en móviles pequeños */
+}
+
+/* LAYOUT 1: Login / Inicio (Centrado Puro) */
+.centered-layout {
+  width: 100%;
+  max-width: 550px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  /* Subir contenido para dejar ver los árboles */
+  margin-top: -28vh;
+  animation: fadeUp 1s ease-out;
+}
+
+/* Espaciado específico para el botón dentro del layout */
+.centered-layout>.btn {
+  margin-top: 1.5rem;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* LAYOUT 2: Ruleta (Dividido en Desktop) */
+.split-layout {
+  display: flex;
+  flex-direction: column;
+  /* Móvil: columna */
+  gap: 2rem;
+  width: 100%;
+  max-width: 1280px;
+  /* Altura controlada para evitar scroll si es posible */
+  min-height: 0;
+  /* Subir contenido para dejar ver los árboles (igual que centered-layout) */
+  margin-top: -28vh;
+}
+
+.roulette-column {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.controls-column {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Tarjeta de controles estilo cristal */
+.controls-card {
+  width: 100%;
+  max-width: 500px;
+  padding: 2rem;
+  border-radius: 24px;
+
+  background: rgba(0, 0, 0, 0.2);
+  /* Sutil */
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(5px);
+
+  text-align: center;
+  animation: cardEnter 0.6s ease-out backwards;
+}
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ESTILOS DE ELEMENTOS GRANDES (In-game) */
+.big-title {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+.decorative-msg {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--color-gold);
+  margin-top: 1rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.giant-btn {
+  /* Modificadores para el botón principal de giro */
+  font-size: clamp(1.8rem, 3vw, 2.5rem) !important;
+  padding: 1.5rem 4rem !important;
+  width: 100%;
+  max-width: 450px;
+  margin-top: 1.5rem;
+}
+
+/* RESPONSIVE: ESCRITORIO (Wide Screen) */
+@media (min-width: 1024px) {
+
+  /* Layout dividido lado a lado */
+  .split-layout {
+    flex-direction: row;
+    height: 85vh;
+    /* Usamos alto de pantalla */
+    align-items: center;
+    padding: 0 4rem;
+  }
+
+  .roulette-column {
+    flex: 1.5;
+    /* Más espacio a la ruleta */
+    justify-content: center;
+  }
+
+  .controls-column {
+    flex: 1;
+    height: auto;
+    align-items: flex-start;
+    /* Alinear a la izq */
+  }
+
+  /* En desktop, la tarjeta es invisible o más limpia */
+  .controls-card {
+    background: none;
+    border: none;
+    backdrop-filter: none;
+    padding: 0;
+    text-align: left;
+    /* Textos a la izquierda */
+  }
+
+  /* Solo los títulos DENTRO del panel de controles van a la izquierda */
+  .controls-card .title,
+  .controls-card .subtitle,
+  .controls-column .title,
+  .controls-column .subtitle {
+    text-align: left;
+  }
+
+  /* El botón se alinea a la izquierda */
+  .giant-btn {
+    width: auto;
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+}
+
+/* Utilidades adicionales */
+.hidden {
+  display: none;
+}
+
+.visible {
+  display: block;
+}

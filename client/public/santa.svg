@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Beard -->
+  <path d="M12 36c0 14 10 24 20 24s20-10 20-24H12z" fill="#fff"/>
+  <!-- Face -->
+  <path d="M16 36h32v-8c0-8-6-14-16-14s-16 6-16 14v8z" fill="#fec"/>
+  <!-- Hat Red Part -->
+  <path d="M14 26C14 16 22 4 32 4s18 12 18 22H14z" fill="#d32f2f"/>
+  <!-- Hat Pom Pom -->
+  <circle cx="46" cy="16" r="4" fill="#fff"/>
+  <!-- Hat Tail (adjustment) -->
+  <path d="M48 24 Q52 14 46 16" stroke="#d32f2f" stroke-width="0" fill="none"/>
+  
+  <!-- Hat Brim -->
+  <path d="M10 22h44v8H10z" fill="#fff" rx="4"/>
+  
+  <!-- Moustache -->
+  <path d="M22 42c0 0 4 4 10 0 6 4 10 0 10 0" stroke="#eee" stroke-width="3" fill="none" stroke-linecap="round"/>
+  
+  <!-- Nose -->
+  <circle cx="32" cy="38" r="3.5" fill="#ffa07a"/>
+  
+  <!-- Eyes -->
+  <circle cx="25" cy="32" r="2.5" fill="#333"/>
+  <circle cx="39" cy="32" r="2.5" fill="#333"/>
+  
+  <!-- Blush -->
+  <circle cx="20" cy="38" r="2" fill="#ffb7b2" opacity="0.6"/>
+  <circle cx="44" cy="38" r="2" fill="#ffb7b2" opacity="0.6"/>
+</svg>
