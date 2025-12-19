@@ -23,7 +23,16 @@ if ! [ -x "$(command -v docker-compose)" ] && ! docker compose version &> /dev/n
   exit 1
 fi
 
-# 2. Asegurar que los archivos de persistencia existen (evita que Docker cree directorios)
+# 2. Manejo de Reseteo (Opcional)
+if [[ "$1" == "--reset-db" ]] || [[ "$1" == "reset" ]]; then
+  echo -e "${RED}⚠️ Reseteando base de datos por petición del usuario...${NC}"
+  rm -f server/santa_v2.db
+  # Opcional: Si también quieres resetear participantes, descomenta la línea de abajo
+  # echo '[]' > server/participants.json
+  echo -e "${GREEN}Base de datos eliminada. Se recreará vacía al iniciar.${NC}"
+fi
+
+# 3. Asegurar que los archivos de persistencia existen (evita que Docker cree directorios)
 echo -e "${YELLOW}Preparando archivos de base de datos...${NC}"
 mkdir -p server
 touch server/santa_v2.db
