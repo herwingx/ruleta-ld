@@ -1,27 +1,21 @@
-# Stage 1: Build Client
+# Single Stage: Build and serve static files
 FROM node:20-slim AS builder
 
-WORKDIR /app/client
+WORKDIR /app
 COPY client/package*.json ./
 RUN npm ci
 COPY client/ ./
 RUN npm run build
 
-# Stage 2: Production Server
-FROM node:20-slim
+# Production: Nginx to serve static files
+FROM nginx:alpine
 
-WORKDIR /app/server
-COPY server/package*.json ./
-RUN npm ci --only=production
+# Copy built static files
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-COPY server/ ./
-# Copy built static files from Stage 1 to server's public folder
-COPY --from=builder /app/client/dist ./public
+# Copy nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Create empty DB file if not exists (will be volume mounted anyway)
-# But useful for structure
-RUN touch santa.db
+EXPOSE 80
 
-EXPOSE 3000
-
-CMD ["node", "server.js"]
+CMD ["nginx", "-g", "daemon off;"]

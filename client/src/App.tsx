@@ -1,22 +1,15 @@
-import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
-import axios from 'axios';
+import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import Snow from './components/Snow';
 import Landscape from './components/Landscape';
-import Roulette, { type RouletteRef } from './components/Roulette';
+import RouletteNames, { type RouletteNamesRef } from './components/RouletteNames';
 import GiftModal from './components/GiftModal';
-import SearchSelect from './components/SearchSelect';
-import AdminPanel from './components/AdminPanel';
 import { useBackgroundMusic } from './hooks/useSantaSound';
+import { PARTICIPANTS, type Participant } from './data/participants';
 import './App.css';
 
-// Configuración de entorno
-const API_URL = import.meta.env.PROD ? '/api' : 'http://localhost:3000/api';
-
-// Types
-interface Participant {
-  id: string;
-  name: string;
-}
+// Key para localStorage
+const WINNERS_STORAGE_KEY = 'ruleta-ganadores';
+const RESET_PASSWORD = 'navidad2025';
 
 // --- SUBCOMPONENTE: BOTÓN DE MÚSICA ---
 function MusicButton({ isPlaying, onToggle }: { isPlaying: boolean; onToggle: () => void }) {
@@ -43,7 +36,7 @@ function MusicButton({ isPlaying, onToggle }: { isPlaying: boolean; onToggle: ()
           width: 50px; height: 50px;
           cursor: pointer;
           display: flex; align-items: center; justify-content: center;
-          transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); /* Elastic bounce */
+          transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
           color: white;
           box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
@@ -63,116 +56,99 @@ function MusicButton({ isPlaying, onToggle }: { isPlaying: boolean; onToggle: ()
 
 // --- COMPONENTE PRINCIPAL ---
 function App() {
-  const [participants, setParticipants] = useState<Participant[]>([]);
-  const [selectedUser, setSelectedUser] = useState<string>("");
-  const [gameState, setGameState] = useState<'LOGIN' | 'ROULETTE' | 'REVEAL' | 'ALREADY_PLAYED'>('LOGIN');
+  const [gameState, setGameState] = useState<'READY' | 'SPINNING' | 'REVEAL'>('READY');
   const [winner, setWinner] = useState<Participant | null>(null);
+
+  // Cargar ganadores de localStorage con inicialización lazy
+  const [winners, setWinners] = useState<string[]>(() => {
+    const saved = localStorage.getItem(WINNERS_STORAGE_KEY);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  });
 
   // Audio state
   const [musicPlaying, setMusicPlaying] = useState(false);
 
-  const rouletteRef = useRef<RouletteRef>(null);
+  const rouletteRef = useRef<RouletteNamesRef>(null);
 
-  // Dinámicamente obtener el año (Ej. 2025)
+  // Dinámicamente obtener el año
   const currentYear = useMemo(() => new Date().getFullYear(), []);
 
   // Hook personalizado de música
   const { playMusic, pauseMusic } = useBackgroundMusic();
 
-  // 1. Cargar datos iniciales
+  // Guardar ganadores cuando cambian
   useEffect(() => {
-    axios.get(`${API_URL}/participants`)
-      .then(res => setParticipants(res.data))
-      .catch(err => console.error("Error cargando participantes:", err));
-  }, []);
+    if (winners.length > 0) {
+      localStorage.setItem(WINNERS_STORAGE_KEY, JSON.stringify(winners));
+    }
+  }, [winners]);
 
-  // 2. Handlers
-  const handleUserSelect = useCallback((value: string) => {
-    setSelectedUser(value);
-  }, []);
+  // Participantes disponibles (excluyendo ganadores)
+  const availableParticipants = useMemo(() => {
+    return PARTICIPANTS.filter(p => !winners.includes(p.id));
+  }, [winners]);
 
+  // Handlers
   const handleMusicToggle = useCallback(() => {
     if (musicPlaying) {
       pauseMusic();
       setMusicPlaying(false);
     } else {
-      playMusic(0.2); // Volumen al 20%
+      playMusic(0.2);
       setMusicPlaying(true);
     }
   }, [musicPlaying, playMusic, pauseMusic]);
 
-  // Verificar estado del usuario (¿Ya jugó?)
-  const handleStart = useCallback(async () => {
-    if (!selectedUser) return;
-
-    // Autoplay UX: Intentar iniciar música suavemente
-    if (!musicPlaying) {
-      playMusic(0.2);
-      setMusicPlaying(true);
-    }
-
-    try {
-      const res = await axios.get(`${API_URL}/status/${selectedUser}`);
-      const data = res.data;
-
-      if (data.hasPlayed) {
-        setGameState('ALREADY_PLAYED');
-      } else {
-        setGameState('ROULETTE');
-      }
-
-      // Modo inmersivo full screen
-      if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen().catch((e) => console.log("Fullscreen request denied", e));
-      }
-    } catch (error) {
-      const msg = axios.isAxiosError(error) && error.response
-        ? error.response.data.error
-        : "No pudimos conectar con el Polo Norte 📡";
-      alert(msg);
-    }
-  }, [selectedUser, musicPlaying, playMusic]);
-
-  // Lógica de Giro (Llamada a API)
-  const spinLogic = useCallback(async () => {
-    try {
-      const res = await axios.post(`${API_URL}/spin`, { spinnerId: selectedUser });
-      const data = res.data;
-
-      if (data.alreadyAssigned) {
-        setGameState('ALREADY_PLAYED');
-        return null;
-      }
-
-      return { id: data.receiverId, name: data.receiverName };
-    } catch (error) {
-      const msg = axios.isAxiosError(error) && error.response
-        ? error.response.data.error
-        : "Ocurrió un error mágico al girar 🪄. Intenta de nuevo.";
-      alert(msg);
-      return null;
-    }
-  }, [selectedUser]);
-
   // Trigger visual del giro
   const handleSpinClick = useCallback(() => {
+    if (availableParticipants.length === 0) {
+      alert('¡Ya no hay más participantes disponibles!');
+      return;
+    }
+
     if (rouletteRef.current && !rouletteRef.current.isSpinning) {
+      // Autoplay música si no está sonando
+      if (!musicPlaying) {
+        playMusic(0.2);
+        setMusicPlaying(true);
+      }
+
+      setGameState('SPINNING');
       rouletteRef.current.spin();
     }
-  }, []);
+  }, [musicPlaying, playMusic, availableParticipants.length]);
 
   // Callback al terminar el giro visual
-  const onSpinFinish = useCallback((winnerCtx: Participant) => {
-    setWinner(winnerCtx);
-    // Transición suave hacia el Modal de Revelación
+  const onSpinFinish = useCallback((winnerParticipant: Participant) => {
+    setWinner(winnerParticipant);
+    // Agregar a ganadores
+    setWinners(prev => [...prev, winnerParticipant.id]);
     setTimeout(() => setGameState('REVEAL'), 600);
   }, []);
 
-  // Reiniciar flujo
+  // Reiniciar flujo (solo vuelve a READY, no borra ganadores)
   const reset = useCallback(() => {
-    setGameState('LOGIN');
+    setGameState('READY');
     setWinner(null);
-    setSelectedUser("");
+  }, []);
+
+  // Reset con contraseña (borra localStorage)
+  const handleResetWithPassword = useCallback(() => {
+    const password = prompt('Ingresa la contraseña para reiniciar el sorteo:');
+    if (password === RESET_PASSWORD) {
+      localStorage.removeItem(WINNERS_STORAGE_KEY);
+      setWinners([]);
+      alert('✅ Sorteo reiniciado. Todos pueden participar de nuevo.');
+    } else if (password !== null) {
+      alert('❌ Contraseña incorrecta');
+    }
   }, []);
 
   // --- RENDER ---
@@ -188,49 +164,39 @@ function App() {
 
       {/* ELEMENTOS FLOTANTES DE UI */}
       <MusicButton isPlaying={musicPlaying} onToggle={handleMusicToggle} />
-      <AdminPanel />
+
+      {/* Botón de reset oculto (esquina inferior izquierda) */}
+      <button
+        onClick={handleResetWithPassword}
+        style={{
+          position: 'fixed',
+          bottom: '10px',
+          left: '10px',
+          background: 'rgba(0,0,0,0.2)',
+          border: 'none',
+          color: 'rgba(255,255,255,0.3)',
+          padding: '8px 12px',
+          borderRadius: '4px',
+          cursor: 'pointer',
+          fontSize: '0.7rem',
+          zIndex: 100,
+        }}
+      >
+        🔧
+      </button>
 
       <div className="screen-container">
 
-        {/* === VISTA 1: LOGIN (Selección de Usuario) === */}
-        {gameState === 'LOGIN' && (
-          <div className="centered-layout">
-            <h1 className="title">
-              <span className="title-sub">🎅 Amigo Secreto {currentYear}</span>
-              <span className="title-main">Sorteo Navideño</span>
-            </h1>
-
-            <p className="subtitle">Selecciona tu nombre para ingresar:</p>
-
-            <SearchSelect
-              options={participants}
-              value={selectedUser}
-              onChange={handleUserSelect}
-              placeholder="Busca tu nombre..."
-            />
-
-            <button className="btn" onClick={handleStart} disabled={!selectedUser}>
-              PARTICIPAR 🎁
-            </button>
-
-            {!musicPlaying && (
-              <p className="tip-text">
-                🔔 Tip: Activa el sonido arriba a la derecha para la mejor experiencia
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* === VISTA 2: RULETA (El Juego) === */}
-        {gameState === 'ROULETTE' && (
+        {/* === VISTA PRINCIPAL: RULETA === */}
+        {(gameState === 'READY' || gameState === 'SPINNING') && (
           <div className="split-layout">
 
-            {/* Izquierda: Ruleta Visual */}
+            {/* Izquierda: Ruleta Visual con Nombres */}
             <div className="roulette-column">
-              <Roulette
+              <RouletteNames
                 ref={rouletteRef}
-                participants={participants}
-                onSpin={spinLogic}
+                availableParticipants={availableParticipants}
+                winnerIds={winners}
                 onFinish={onSpinFinish}
               />
             </div>
@@ -238,77 +204,40 @@ function App() {
             {/* Derecha: Panel de Control */}
             <div className="controls-column">
               <div className="controls-card">
-                <h1 className="title" style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}>
-                  ¿Quién será? 🎁
+                <h1 className="title" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)' }}>
+                  <span className="title-sub">🎁 Sorteo Navideño {currentYear}</span>
+                  <span className="title-main">¡Gana un Premio!</span>
                 </h1>
 
                 <p className="subtitle" style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                  La ruleta del destino está lista.<br />
-                  ¡Gira y descubre a quién regalarás!
+                  ¡Gira la ruleta y descubre quién es el afortunado ganador!
                 </p>
 
-                <button className="btn giant-btn" onClick={handleSpinClick}>
-                  GIRAR RULETA
+                <button
+                  className="btn giant-btn"
+                  onClick={handleSpinClick}
+                  disabled={gameState === 'SPINNING' || availableParticipants.length === 0}
+                >
+                  {gameState === 'SPINNING' ? '🎰 GIRANDO...' : '🎡 GIRAR RULETA'}
                 </button>
 
                 <div className="decorative-msg">
-                  ✨ ¡Buena suerte! ✨
+                  ✨ ¡Buena suerte a todos! ✨
                 </div>
+
+                {!musicPlaying && (
+                  <p className="tip-text">
+                    🔔 Tip: Activa el sonido arriba a la derecha para la mejor experiencia
+                  </p>
+                )}
               </div>
             </div>
           </div>
         )}
 
-        {/* === VISTA 3: REVEAL (Modal Flotante) === */}
-        {/* El componente GiftModal usa Portal, por eso se monta "aquí" lógica pero allá visualmente */}
+        {/* === VISTA: REVEAL (Modal Flotante) === */}
         {gameState === 'REVEAL' && winner && (
           <GiftModal winnerName={winner.name} onClose={reset} />
-        )}
-
-        {/* === VISTA 4: ALREADY PLAYED (Estado Informativo - SIN REVELAR NOMBRE) === */}
-        {gameState === 'ALREADY_PLAYED' && (
-          <div className="centered-layout">
-            <div className="controls-card" style={{ maxWidth: '450px' }}>
-              <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>🎅✅</div>
-
-              <h1 className="title" style={{ fontSize: '2rem' }}>¡Ya Participaste!</h1>
-
-              <p className="subtitle" style={{ fontSize: '1.1rem', marginBottom: '1.5rem' }}>
-                Tu giro ya fue registrado anteriormente.<br />
-                Recuerda a quién te tocó regalar 🎁
-              </p>
-
-              <div style={{
-                margin: '1.5rem 0',
-                padding: '1.5rem',
-                border: '2px dashed rgba(255, 255, 255, 0.2)',
-                borderRadius: '16px',
-                background: 'rgba(5, 30, 20, 0.4)',
-              }}>
-                <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🤫</div>
-                <p style={{
-                  fontSize: '0.95rem',
-                  color: 'rgba(255, 255, 255, 0.7)',
-                  margin: 0,
-                  lineHeight: '1.5'
-                }}>
-                  Por seguridad, el nombre de tu amigo secreto<br />
-                  no se muestra aquí.<br />
-                  <strong style={{ color: 'var(--color-gold)' }}>
-                    ¡Esperamos que lo recuerdes!
-                  </strong>
-                </p>
-              </div>
-
-              <p style={{ fontSize: '0.85rem', opacity: 0.5, marginBottom: '2rem' }}>
-                Si olvidaste tu asignación, consulta con el organizador.
-              </p>
-
-              <button className="btn" onClick={reset} style={{ padding: '0.8rem 2rem', fontSize: '1rem' }}>
-                VOLVER AL INICIO
-              </button>
-            </div>
-          </div>
         )}
 
       </div>

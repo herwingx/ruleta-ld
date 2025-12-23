@@ -15,8 +15,8 @@
   /* Centrar verticalmente por defecto */
   align-items: center;
 
-  overflow-y: auto;
-  /* Scroll de seguridad en móviles pequeños */
+  overflow: hidden;
+  /* Evitar scroll durante animaciones */
 }
 
 /* LAYOUT 1: Login / Inicio (Centrado Puro) */
@@ -59,11 +59,11 @@
   /* Móvil: columna */
   gap: 2rem;
   width: 100%;
-  max-width: 1280px;
-  /* Altura controlada para evitar scroll si es posible */
+  max-width: 1400px;
   min-height: 0;
-  /* Subir contenido para dejar ver los árboles (igual que centered-layout) */
-  margin-top: -28vh;
+  /* Centrado perfecto */
+  justify-content: center;
+  align-items: center;
 }
 
 .roulette-column {
@@ -152,16 +152,19 @@
   /* Layout dividido lado a lado */
   .split-layout {
     flex-direction: row;
-    height: 85vh;
+    height: 90vh;
     /* Usamos alto de pantalla */
     align-items: center;
-    padding: 0 4rem;
+    padding: 0 3rem;
+    gap: 12rem;
+    /* Más espacio entre ruleta y controles */
   }
 
   .roulette-column {
-    flex: 1.5;
+    flex: 1.2;
     /* Más espacio a la ruleta */
     justify-content: center;
+    align-items: center;
   }
 
   .controls-column {

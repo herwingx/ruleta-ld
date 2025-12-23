@@ -30,10 +30,9 @@ export default function GiftModal({ winnerName, onClose }: GiftModalProps) {
     return () => clearTimeout(timer);
   }, []);
 
-  // --- CONFIGURACIÓN DE PARTÍCULAS DE FONDO ---
-  // Calculado una sola vez con random determinista para performance extrema
+  // --- CONFIGURACIÓN DE PARTÍCULAS DE FONDO (Optimizado) ---
   const particles = useMemo(() => {
-    return Array.from({ length: 25 }).map((_, i) => {
+    return Array.from({ length: 12 }).map((_, i) => {
       const seed1 = i * 111;
       const seed2 = i * 222;
       const seed3 = i * 333;
@@ -42,10 +41,10 @@ export default function GiftModal({ winnerName, onClose }: GiftModalProps) {
       return {
         id: i,
         char: CHRISTMAS_SYMBOLS[i % CHRISTMAS_SYMBOLS.length],
-        left: seededRandom(seed1) * 100,            // Posición 0-100%
-        animDuration: 4 + seededRandom(seed2) * 4,  // Velocidad variable
-        delay: seededRandom(seed3) * 2,             // Delay orgánico
-        scale: 0.5 + seededRandom(seed4) * 1.5,     // Tamaños variados
+        left: seededRandom(seed1) * 100,
+        animDuration: 5 + seededRandom(seed2) * 3,
+        delay: seededRandom(seed3) * 2,
+        scale: 0.8 + seededRandom(seed4) * 1,
       };
     });
   }, []);
@@ -54,55 +53,80 @@ export default function GiftModal({ winnerName, onClose }: GiftModalProps) {
   useEffect(() => {
     if (!canRender) return;
 
-    // 1. Iniciar transición CSS (Fade In + Zoom)
-    // requestAnimationFrame asegura que el navegador ha pintado el DOM antes de añadir la clase 'visible'
     requestAnimationFrame(() => setIsVisible(true));
 
-    // 2. DETONAR CONFETI REAL (Canvas Confetti) 🎉
-    const duration = 3000;
-    const end = Date.now() + duration;
-
-    // Función de bucle para lanzar confeti lateral
-    const fireSideCannons = () => {
-      // Cañón Izquierdo
-      confetti({
-        particleCount: 5,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0, y: 0.6 },
-        colors: ['#ffd700', '#c41e3a', '#ffffff'],
-        zIndex: 10000
-      });
-      // Cañón Derecho
-      confetti({
-        particleCount: 5,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1, y: 0.6 },
-        colors: ['#ffd700', '#c41e3a', '#ffffff'],
-        zIndex: 10000
-      });
-
-      if (Date.now() < end) {
-        requestAnimationFrame(fireSideCannons);
-      }
-    };
-
-    // Iniciar cañones laterales
-    fireSideCannons();
-
-    // 3. Explosión Central Mayor (Golpe de efecto al aparecer el nombre)
-    setTimeout(() => {
+    // 1. Primera explosión grande al aparecer
+    const explosion1 = setTimeout(() => {
       confetti({
         particleCount: 150,
         spread: 100,
-        origin: { y: 0.6 },
+        origin: { y: 0.5, x: 0.5 },
         zIndex: 10001,
-        disableForReducedMotion: true,
-        colors: ['#ffd700', '#ffffff', '#FF0000']
+        colors: ['#ffd700', '#ffffff', '#dc2626', '#22c55e', '#fbbf24']
       });
+    }, 200);
+
+    // 2. Segunda explosión de estrellas
+    const explosion2 = setTimeout(() => {
+      confetti({
+        particleCount: 80,
+        spread: 60,
+        origin: { y: 0.6, x: 0.5 },
+        zIndex: 10001,
+        shapes: ['star'],
+        colors: ['#ffd700', '#fef3c7', '#fbbf24']
+      });
+    }, 600);
+
+    // 3. Confeti lateral continuo (más alegre)
+    let sideInterval: ReturnType<typeof setInterval>;
+    const startSideCannons = setTimeout(() => {
+      let count = 0;
+      sideInterval = setInterval(() => {
+        count++;
+        if (count > 25) {
+          clearInterval(sideInterval);
+          return;
+        }
+        // Cañón Izquierdo
+        confetti({
+          particleCount: 4,
+          angle: 60,
+          spread: 50,
+          origin: { x: 0, y: 0.6 },
+          colors: ['#ffd700', '#dc2626', '#22c55e'],
+          zIndex: 10000
+        });
+        // Cañón Derecho
+        confetti({
+          particleCount: 4,
+          angle: 120,
+          spread: 50,
+          origin: { x: 1, y: 0.6 },
+          colors: ['#ffd700', '#dc2626', '#22c55e'],
+          zIndex: 10000
+        });
+      }, 120);
     }, 400);
 
+    // 4. Explosión final de celebración
+    const finalExplosion = setTimeout(() => {
+      confetti({
+        particleCount: 100,
+        spread: 120,
+        origin: { y: 0.7 },
+        zIndex: 10001,
+        colors: ['#ffd700', '#ffffff', '#dc2626']
+      });
+    }, 1500);
+
+    return () => {
+      clearTimeout(explosion1);
+      clearTimeout(explosion2);
+      clearTimeout(startSideCannons);
+      clearTimeout(finalExplosion);
+      if (sideInterval) clearInterval(sideInterval);
+    };
   }, [canRender]);
 
   const handleClose = () => {
@@ -150,7 +174,7 @@ export default function GiftModal({ winnerName, onClose }: GiftModalProps) {
 
         {/* Encabezados */}
         <h1 className="congrats-text">¡FELICIDADES!</h1>
-        <p className="subtitle-text">La magia de la navidad ha elegido a:</p>
+        <p className="subtitle-text">🏆 ¡El ganador del premio es! 🏆</p>
 
         {/* Nombre del Ganador */}
         <div className="winner-box">
