@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import confetti from 'canvas-confetti';
 
@@ -16,10 +16,17 @@ interface GiftModalProps {
 
 const CHRISTMAS_SYMBOLS = ['🎁', '🌟', '❄️', '🎄', '🦌', '✨'];
 
+// Tiempo en ms antes de revelar el nombre (cuando la música se pone emocionante)
+const REVEAL_DELAY = 3000;
+
 export default function GiftModal({ winnerName, onClose }: GiftModalProps) {
   // Estado para controlar la hidratación (portal) y la visibilidad (animaciones)
   const [canRender, setCanRender] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [nameRevealed, setNameRevealed] = useState(false);
+
+  // Ref para el audio de fanfarrias
+  const fanfarriasRef = useRef<HTMLAudioElement | null>(null);
 
   // --- FIX 1: Hydration / Portal Safe Check ---
   // Usamos setTimeout para evitar el error "SetState in Effect synchronously"
@@ -49,88 +56,144 @@ export default function GiftModal({ winnerName, onClose }: GiftModalProps) {
     });
   }, []);
 
-  // --- SECUENCIA DE ENTRADA Y CONFETI ---
+  // --- SECUENCIA DE ENTRADA: FANFARRIAS + REVELACIÓN AUTOMÁTICA ---
   useEffect(() => {
     if (!canRender) return;
 
     requestAnimationFrame(() => setIsVisible(true));
 
-    // 1. Primera explosión grande al aparecer
-    const explosion1 = setTimeout(() => {
-      confetti({
-        particleCount: 150,
-        spread: 100,
-        origin: { y: 0.5, x: 0.5 },
-        zIndex: 10001,
-        colors: ['#ffd700', '#ffffff', '#dc2626', '#22c55e', '#fbbf24']
-      });
-    }, 200);
+    // 1. Iniciar audio de fanfarrias inmediatamente
+    fanfarriasRef.current = new Audio('/sounds/fanfarrias.mp3');
+    fanfarriasRef.current.volume = 0.6;
+    fanfarriasRef.current.play().catch(e => console.log('Audio no pudo reproducirse:', e));
 
-    // 2. Segunda explosión de estrellas
-    const explosion2 = setTimeout(() => {
+    // 2. Después de 3 segundos, revelar el nombre automáticamente
+    const revealTimer = setTimeout(() => {
+      setNameRevealed(true);
+    }, REVEAL_DELAY);
+
+    return () => {
+      clearTimeout(revealTimer);
+      if (fanfarriasRef.current) {
+        fanfarriasRef.current.pause();
+        fanfarriasRef.current = null;
+      }
+    };
+  }, [canRender]);
+
+  // --- CONFETI: Se dispara cuando se revela el nombre ---
+  useEffect(() => {
+    if (!nameRevealed) return;
+
+    // 1. Gran explosión central al revelar
+    confetti({
+      particleCount: 200,
+      spread: 120,
+      origin: { y: 0.5, x: 0.5 },
+      zIndex: 10001,
+      colors: ['#ffd700', '#ffffff', '#dc2626', '#22c55e', '#fbbf24']
+    });
+
+    // 2. Explosión de estrellas
+    const starsExplosion = setTimeout(() => {
       confetti({
-        particleCount: 80,
-        spread: 60,
+        particleCount: 100,
+        spread: 80,
         origin: { y: 0.6, x: 0.5 },
         zIndex: 10001,
         shapes: ['star'],
         colors: ['#ffd700', '#fef3c7', '#fbbf24']
       });
-    }, 600);
+    }, 300);
 
-    // 3. Confeti lateral continuo (más alegre)
-    let sideInterval: ReturnType<typeof setInterval>;
-    const startSideCannons = setTimeout(() => {
-      let count = 0;
-      sideInterval = setInterval(() => {
-        count++;
-        if (count > 25) {
-          clearInterval(sideInterval);
-          return;
-        }
-        // Cañón Izquierdo
-        confetti({
-          particleCount: 4,
-          angle: 60,
-          spread: 50,
-          origin: { x: 0, y: 0.6 },
-          colors: ['#ffd700', '#dc2626', '#22c55e'],
-          zIndex: 10000
-        });
-        // Cañón Derecho
-        confetti({
-          particleCount: 4,
-          angle: 120,
-          spread: 50,
-          origin: { x: 1, y: 0.6 },
-          colors: ['#ffd700', '#dc2626', '#22c55e'],
-          zIndex: 10000
-        });
-      }, 120);
-    }, 400);
-
-    // 4. Explosión final de celebración
-    const finalExplosion = setTimeout(() => {
+    // 3. Confeti lateral continuo extendido (para coincidir con la duración del audio)
+    let count = 0;
+    const sideInterval = setInterval(() => {
+      count++;
+      // Más iteraciones para que dure más (50 iteraciones * 150ms = ~7.5 segundos)
+      if (count > 50) {
+        clearInterval(sideInterval);
+        return;
+      }
+      // Cañón Izquierdo
       confetti({
-        particleCount: 100,
-        spread: 120,
+        particleCount: 5,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0, y: 0.6 },
+        colors: ['#ffd700', '#dc2626', '#22c55e'],
+        zIndex: 10000
+      });
+      // Cañón Derecho
+      confetti({
+        particleCount: 5,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1, y: 0.6 },
+        colors: ['#ffd700', '#dc2626', '#22c55e'],
+        zIndex: 10000
+      });
+    }, 150);
+
+    // 4. Explosiones adicionales durante la celebración
+    const explosion2 = setTimeout(() => {
+      confetti({
+        particleCount: 120,
+        spread: 100,
         origin: { y: 0.7 },
         zIndex: 10001,
         colors: ['#ffd700', '#ffffff', '#dc2626']
       });
     }, 1500);
 
+    const explosion3 = setTimeout(() => {
+      confetti({
+        particleCount: 80,
+        spread: 90,
+        origin: { y: 0.5, x: 0.3 },
+        zIndex: 10001,
+        colors: ['#ffd700', '#22c55e', '#fbbf24']
+      });
+    }, 3000);
+
+    const explosion4 = setTimeout(() => {
+      confetti({
+        particleCount: 80,
+        spread: 90,
+        origin: { y: 0.5, x: 0.7 },
+        zIndex: 10001,
+        colors: ['#dc2626', '#ffffff', '#fbbf24']
+      });
+    }, 4500);
+
+    // 5. Explosión final grande
+    const finalExplosion = setTimeout(() => {
+      confetti({
+        particleCount: 150,
+        spread: 140,
+        origin: { y: 0.6 },
+        zIndex: 10001,
+        colors: ['#ffd700', '#ffffff', '#dc2626', '#22c55e']
+      });
+    }, 6000);
+
     return () => {
-      clearTimeout(explosion1);
+      clearTimeout(starsExplosion);
       clearTimeout(explosion2);
-      clearTimeout(startSideCannons);
+      clearTimeout(explosion3);
+      clearTimeout(explosion4);
       clearTimeout(finalExplosion);
       if (sideInterval) clearInterval(sideInterval);
     };
-  }, [canRender]);
+  }, [nameRevealed]);
 
   const handleClose = () => {
     setIsVisible(false); // Disparar animación de salida CSS
+    // Detener audio de fanfarrias
+    if (fanfarriasRef.current) {
+      fanfarriasRef.current.pause();
+      fanfarriasRef.current = null;
+    }
     setTimeout(onClose, 500); // Esperar a que termine para desmontar
   };
 
@@ -172,20 +235,37 @@ export default function GiftModal({ winnerName, onClose }: GiftModalProps) {
         {/* Luz ambiental detrás de la tarjeta */}
         <div className="glow-spotlight" />
 
-        {/* Encabezados */}
-        <h1 className="congrats-text">¡FELICIDADES!</h1>
-        <p className="subtitle-text">🏆 ¡El ganador del premio es! 🏆</p>
+        {/* Contenido según el estado de revelación */}
+        {!nameRevealed ? (
+          <>
+            {/* Estado: Esperando revelación */}
+            <h1 className="congrats-text suspense">¡TENEMOS UN GANADOR!</h1>
+            <p className="subtitle-text">🎄 Prepárense... 🎄</p>
 
-        {/* Nombre del Ganador */}
-        <div className="winner-box">
-          <div className="gift-bounce-icon">🎁</div>
-          <h2 className="winner-name">{winnerName}</h2>
-        </div>
+            <div className="gift-suspense-container">
+              <div className="gift-glow" />
+              <div className="gift-shake-icon">🎁</div>
+              <p className="suspense-hint">El premio está por revelarse...</p>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Estado: Nombre revelado */}
+            <h1 className="congrats-text revealed">¡FELICIDADES!</h1>
+            <p className="subtitle-text">🏆 ¡El ganador del premio es! 🏆</p>
 
-        {/* Botón de cierre discreto */}
-        <button className="close-hint" onClick={handleClose}>
-          Continuar
-        </button>
+            {/* Nombre del Ganador */}
+            <div className="winner-box">
+              <div className="gift-bounce-icon">🎁</div>
+              <h2 className="winner-name">{winnerName}</h2>
+            </div>
+
+            {/* Botón de cierre */}
+            <button className="close-hint" onClick={handleClose}>
+              Continuar
+            </button>
+          </>
+        )}
       </div>
 
       {/* 3. Estilos encapsulados (CSS-in-JS style tag) */}
@@ -318,6 +398,87 @@ export default function GiftModal({ winnerName, onClose }: GiftModalProps) {
           28% { transform: scale(1); }
           42% { transform: scale(1.05); }
           70% { transform: scale(1); }
+        }
+
+        /* --- ESTADO DE SUSPENSE (antes de revelar) --- */
+        .congrats-text.suspense {
+          font-size: clamp(2rem, 7vw, 3rem);
+          animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        .congrats-text.revealed {
+          animation: revealPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        .gift-suspense-container {
+          position: relative;
+          margin: 2rem 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 1rem;
+        }
+
+        .gift-glow {
+          position: absolute;
+          width: 200px;
+          height: 200px;
+          background: radial-gradient(circle, rgba(251, 191, 36, 0.4) 0%, transparent 70%);
+          filter: blur(40px);
+          animation: glowPulse 2s ease-in-out infinite;
+          z-index: -1;
+        }
+
+        .gift-shake-icon {
+          font-size: 6rem;
+          filter: drop-shadow(0 0 20px rgba(251, 191, 36, 0.5));
+          animation: shake 0.5s ease-in-out infinite, scalePulse 2s ease-in-out infinite;
+        }
+
+        .suspense-hint {
+          color: rgba(255, 255, 255, 0.7);
+          font-family: var(--font-hand);
+          font-size: 1.2rem;
+          animation: fadeInOut 2s ease-in-out infinite;
+        }
+
+        @keyframes shake {
+          0%, 100% { transform: rotate(-3deg); }
+          50% { transform: rotate(3deg); }
+        }
+
+        @keyframes scalePulse {
+          0%, 100% { transform: scale(1) rotate(-3deg); }
+          50% { transform: scale(1.1) rotate(3deg); }
+        }
+
+        @keyframes glowPulse {
+          0%, 100% { opacity: 0.5; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.8; transform: scale(0.98); }
+        }
+
+        @keyframes fadeInOut {
+          0%, 100% { opacity: 0.5; }
+          50% { opacity: 1; }
+        }
+
+        @keyframes revealPop {
+          0% { transform: scale(0.5); opacity: 0; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+
+        .winner-name {
+          animation: heartBeat 2s infinite, revealSlide 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes revealSlide {
+          0% { transform: translateY(30px); opacity: 0; }
+          100% { transform: translateY(0); opacity: 1; }
         }
       `}</style>
     </div>,

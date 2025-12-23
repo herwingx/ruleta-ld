@@ -4,8 +4,8 @@ import { useRef, useCallback, useEffect } from 'react';
 const SOUNDS = {
   hohoho: '/sounds/ohohoh.mp3',
   jingle: '/sounds/jingle.mp3',
-  win: '/sounds/win.mp3',
   spin: '/sounds/spin.mp3',
+  fanfarrias: '/sounds/fanfarrias.mp3',
 };
 
 // Música de fondo (se reproduce en loop)

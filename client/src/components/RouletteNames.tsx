@@ -2,7 +2,7 @@ import { useRef, useState, useCallback, useImperativeHandle, forwardRef, useEffe
 import { createPortal } from 'react-dom';
 import gsap from 'gsap';
 import { useSantaSound } from '../hooks/useSantaSound';
-import { PARTICIPANTS, getShortName, type Participant } from '../data/participants';
+import { PARTICIPANTS, type Participant } from '../data/participants';
 
 interface RouletteNamesProps {
   availableParticipants: Participant[]; // Participantes que aún no han ganado
@@ -197,7 +197,7 @@ const RouletteNames = forwardRef<RouletteNamesRef, RouletteNamesProps>(({ availa
     }, 3500);
   }, [playSound]);
 
-  // SVG Wheel Segments con NOMBRES
+  // SVG Wheel Segments con NÚMEROS de posición (sin nombres)
   const wheelSegments = useMemo(() => {
     return PARTICIPANTS.map((participant, i) => {
       const angle = segAngle * i;
@@ -210,8 +210,8 @@ const RouletteNames = forwardRef<RouletteNamesRef, RouletteNamesProps>(({ availa
       const d = `M50,50 L${x1},${y1} A50,50 0 ${largeArc},1 ${x2},${y2} Z`;
       const textAngle = angle + segAngle / 2;
 
-      // Nombre corto para que quepa
-      const shortName = getShortName(participant.name);
+      // Número de posición (1, 2, 3...)
+      const positionNumber = i + 1;
 
       // Verificar si ya ganó (marcar en gris)
       const isWinner = winnerIds.includes(participant.id);
@@ -239,27 +239,26 @@ const RouletteNames = forwardRef<RouletteNamesRef, RouletteNamesProps>(({ availa
             stroke={isWinner ? 'rgba(100, 100, 100, 0.4)' : 'rgba(255, 215, 0, 0.8)'}
             strokeWidth="0.3"
           />
-          {/* Nombre del participante */}
+          {/* Número de posición */}
           <text
             x="50" y="50"
-            fontSize="2.2"
+            fontSize="2.8"
             fontWeight="bold"
-            textAnchor="start"
+            textAnchor="middle"
             dominantBaseline="middle"
             fill={isWinner ? 'rgba(255,255,255,0.4)' : 'white'}
             opacity={textOpacity}
             transform={`
               rotate(${textAngle - 90}, 50, 50) 
-              translate(15, 0) 
-              rotate(0)
+              translate(30, 0) 
+              rotate(90)
             `}
             style={{
               textShadow: '0 1px 2px rgba(0,0,0,0.8)',
               fontFamily: 'Arial, sans-serif',
-              textDecoration: isWinner ? 'line-through' : 'none',
             }}
           >
-            {shortName}
+            {positionNumber}
           </text>
         </g>
       );
@@ -325,7 +324,6 @@ const RouletteNames = forwardRef<RouletteNamesRef, RouletteNamesProps>(({ availa
             },
             onComplete: () => {
               stopAll();
-              playSound('win', 0.85);
               setTimeout(() => playSound('jingle', 0.6), 300);
               setIsSpinning(false);
               setIntensity(0);
@@ -379,7 +377,7 @@ const RouletteNames = forwardRef<RouletteNamesRef, RouletteNamesProps>(({ availa
           return (
             <div
               key={i}
-              className={`ring-light ${isSpinning ? 'active' : ''}`}
+              className="ring-light active"
               style={{
                 transform: `translate(${x}px, ${y}px)`,
                 animationDelay: `${i * 0.05}s`,
