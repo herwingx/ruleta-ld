@@ -4,42 +4,78 @@ export interface Participant {
   name: string;
 }
 
-export const PARTICIPANTS: Participant[] = [
-  { id: "1", name: "ALCALA CARDONA JOSE ALFREDO" },
-  { id: "2", name: "ARRIAGA RAMIREZ BEATRIZ" },
-  { id: "3", name: "AVENDAÑO AQUINO SERGIO OMAR" },
-  { id: "4", name: "BELTRAN NATURI ISRAEL" },
-  { id: "5", name: "CAMAS ROBLES ALEXIS" },
-  { id: "6", name: "CHANDOMI QUINTERO MAURICIO ALEJANDRO" },
-  { id: "7", name: "COLMENARES LOPEZ JUAN DE JESUS" },
-  { id: "8", name: "CUEVAS PEREZ ROBERTO" },
-  { id: "9", name: "DE LA CRUZ VELAZQUEZ MARIA DEL CARMEN" },
-  { id: "10", name: "DEL ANGEL ZAMORA SERGIO" },
-  { id: "11", name: "DOMINGUEZ ESPINOSA GABRIEL LEONARDO" },
-  { id: "12", name: "ESPINOSA GOMEZ DULCE FATIMA" },
-  { id: "13", name: "GOMEZ ALFARO DANIELA" },
-  { id: "14", name: "GONZALEZ LOPEZ ADALBERTO" },
-  { id: "15", name: "GUTIERREZ HERNANDEZ ALEJANDRO" },
-  { id: "16", name: "HERNANDEZ LIEVANO IRIS MARLIT" },
-  { id: "17", name: "MACAL INFANZON CRISTIAN ROMEO" },
-  { id: "18", name: "MACIAS VELAZQUEZ GUADALUPE" },
-  { id: "19", name: "MARTINEZ JIMENEZ AMIR" },
-  { id: "20", name: "MORALES LOPEZ IVAN DE JESUS" },
-  { id: "21", name: "MUÑOZ LEPE YADIRA" },
-  { id: "22", name: "OCHOA MARROQUIN CECIL" },
-  { id: "23", name: "OZUNA CABALLERO MARTHA LIDIA" },
-  { id: "24", name: "RINCON SANCHEZ MARIANO GUSTAVO" },
-  { id: "25", name: "RODRIGUEZ JIMENEZ CARLOS ALBERTO" },
-  { id: "26", name: "ROQUE ESPINOSA LILIANA ELIZABETH" },
-  { id: "27", name: "RUIZ LOPEZ RAFAEL OCTAVIO" },
-  { id: "28", name: "RUIZ LOPEZ SERGIO DE JESUS" },
-  { id: "29", name: "RUIZ REYES RAFAEL ABRAHAM" },
-  { id: "30", name: "TELLO SANTIAGO DANIEL ALEJANDRO" },
-  { id: "31", name: "TOLEDO DE LEON CITLALLI GUADALUPE" },
-  { id: "32", name: "URBINA PEREZ ANDREA MERARI" },
-  { id: "33", name: "VAZQUEZ JUAREZ JULIO CESAR" },
-  { id: "34", name: "VAZQUEZ MACIAS HERWING EDUARDO" },
+// --- GENERADOR DE NÚMEROS ALEATORIOS CON SEMILLA (Determinista) ---
+// Esto asegura que todos vean la misma asignación de números
+function seededRandom(seed: number): () => number {
+  let state = seed;
+  return () => {
+    state = (state * 1103515245 + 12345) & 0x7fffffff;
+    return state / 0x7fffffff;
+  };
+}
+
+// --- SHUFFLE DETERMINISTA (Fisher-Yates con semilla) ---
+function shuffleWithSeed<T>(array: T[], seed: number): T[] {
+  const shuffled = [...array];
+  const random = seededRandom(seed);
+
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  return shuffled;
+}
+
+// --- DATOS ORIGINALES (ordenados alfabéticamente) ---
+const PARTICIPANTS_RAW = [
+  "ALCALA CARDONA JOSE ALFREDO",
+  "ARRIAGA RAMIREZ BEATRIZ",
+  "AVENDAÑO AQUINO SERGIO OMAR",
+  "BELTRAN NATURI ISRAEL",
+  "CAMAS ROBLES ALEXIS",
+  "CHANDOMI QUINTERO MAURICIO ALEJANDRO",
+  "COLMENARES LOPEZ JUAN DE JESUS",
+  "CUEVAS PEREZ ROBERTO",
+  "DE LA CRUZ VELAZQUEZ MARIA DEL CARMEN",
+  "DEL ANGEL ZAMORA SERGIO",
+  "DOMINGUEZ ESPINOSA GABRIEL LEONARDO",
+  "ESPINOSA GOMEZ DULCE FATIMA",
+  "GOMEZ ALFARO DANIELA",
+  "GONZALEZ LOPEZ ADALBERTO",
+  "GUTIERREZ HERNANDEZ ALEJANDRO",
+  "HERNANDEZ LIEVANO IRIS MARLIT",
+  "MACAL INFANZON CRISTIAN ROMEO",
+  "MACIAS VELAZQUEZ GUADALUPE",
+  "MARTINEZ JIMENEZ AMIR",
+  "MORALES LOPEZ IVAN DE JESUS",
+  "MUÑOZ LEPE YADIRA",
+  "OCHOA MARROQUIN CECIL",
+  "OZUNA CABALLERO MARTHA LIDIA",
+  "RINCON SANCHEZ MARIANO GUSTAVO",
+  "RODRIGUEZ JIMENEZ CARLOS ALBERTO",
+  "ROQUE ESPINOSA LILIANA ELIZABETH",
+  "RUIZ LOPEZ RAFAEL OCTAVIO",
+  "RUIZ LOPEZ SERGIO DE JESUS",
+  "RUIZ REYES RAFAEL ABRAHAM",
+  "TELLO SANTIAGO DANIEL ALEJANDRO",
+  "TOLEDO DE LEON CITLALLI GUADALUPE",
+  "URBINA PEREZ ANDREA MERARI",
+  "VAZQUEZ JUAREZ JULIO CESAR",
+  "VAZQUEZ MACIAS HERWING EDUARDO",
 ];
+
+// --- SEMILLA PARA EL SORTEO (Cambia esto cada año o evento) ---
+const SHUFFLE_SEED = 2025;
+
+// --- PARTICIPANTES CON NÚMEROS ALEATORIOS ASIGNADOS ---
+// Shuffleamos los nombres y les asignamos números secuenciales
+const shuffledNames = shuffleWithSeed(PARTICIPANTS_RAW, SHUFFLE_SEED);
+
+export const PARTICIPANTS: Participant[] = shuffledNames.map((name, index) => ({
+  id: String(index + 1), // El ID es el número visible (1, 2, 3...)
+  name: name,
+}));
 
 // Función para obtener nombre corto (primeras 2 palabras de derecha a izquierda)
 // Si contiene "DEL" o "DE", usa 3 palabras
