@@ -1,37 +1,119 @@
-# Secret Santa Roulette 🎅
+# 🎄 Ruleta Navideña Universal
 
-A high-performance, visually stunning web-based roulette for your office Christmas gift exchange.
+> **La suite definitiva para sorteos navideños** — Dos modos de juego, una experiencia visual inolvidable.
 
-## Features
-- **Secret & Secure**: Backend logic ensures each spinner gets a unique match, persisisted in SQLite. Matches are not revealed until the spin.
-- **Christmas Aesthetic**: Deep red, forest green, gold accents, and falling snow (tsparticles).
-- **Cinematic Experience**: Fullscreen API, GSAP animations, and a gift reveal modal.
-- **Docker Ready**: Multi-stage Dockerfile and Docker Compose setup compatible with Nginx Proxy Manager.
+<!-- BADGES -->
+[![React](https://img.shields.io/badge/React-19-20232A?style=flat-square&logo=react&logoColor=61DAFB)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-007ACC?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-Fast-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
 
-## Quick Start (Docker)
+<p align="center">
+  <img src="client/public/preview.png" alt="Vista Previa de la Ruleta" width="800" onerror="this.src='https://via.placeholder.com/800x400?text=Ruleta+Navideña'"/>
+</p>
 
-1. **Configure Network (Optional)**
-   Open `docker-compose.yml` and adjust the `networks` section to match your Nginx Proxy Manager network name (e.g., `nginx_proxy_manager_default`).
+---
 
-2. **Run**
-   ```bash
-   docker-compose up -d --build
-   ```
+## 📖 Descripción
 
-3. **Access**
-   Open `http://localhost:3000` (or your configured local domain).
+Este repositorio alberga dos aplicaciones distintas diseñadas para diferentes tipos de eventos navideños. Selecciona la "rama" (version) adecuada según tus necesidades:
 
-## Configuration
+| Versión / Rama | Modalidad           | Descripción                                                                                                                            | Ideal para...                                               |
+| :------------- | :------------------ | :------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------- |
+| **`main`**     | **🎅 Amigo Secreto** | Sistema completo con Backend y Base de Datos. Garantiza que cada persona tenga un "amigo secreto" único sin revelar la lista completa. | Intercambios de regalos anónimos en oficinas o familias.    |
+| **`raffle`**   | **🎁 Gran Rifa**     | Aplicación Frontend (sin servidor). Sortea ganadores aleatorios de una lista pública de participantes.                                 | Sortear premios (cestas, bonos) entre todos los asistentes. |
 
-- **Participants**: Edit `server/participants.json` to add your team members before starting.
-  Format: `[{"id": "1", "name": "Name"}, ...]`
+---
 
-## Tech Stack
-- **Frontend**: Vite + React + TypeScript, GSAP (Animation), tsparticles (Snow).
-- **Backend**: Node.js + Express, SQLite (Persistence).
-- **Styling**: Vanilla CSS (CSS Modules compatible).
+## 🎅 Guía: Modo Amigo Secreto (`main`)
 
-## Development
+Esta es la versión actualmente activa si ves este archivo en esta rama.
 
-- Client: `cd client && npm run dev`
-- Server: `cd server && npm start`
+### ⚙️ Funcionamiento
+1.  **Persistencia**: Si cierras el navegador, los emparejamientos se mantienen (gracias a SQLite).
+2.  **Seguridad**: Nadie puede ver quién le tocó a quién, solo el propio participante al girar.
+3.  **Música y Efectos**: Panel de control para sonido ambiental navideño.
+
+### 🛠️ Panel de Administración
+Incluye un panel administrativo accesible desde la interfaz (busca el icono de candado o herramienta) para:
+- **Ver Estado**: Monitorizar quién ya ha girado.
+- **Reiniciar Totalmente**: Borrar la base de datos para un nuevo sorteo.
+- **Requiere Autenticación**: Contraseña configurada en el servidor (por defecto suele ser `navidad2025` o similar en desarrollo).
+
+**Configuración de Participantes:**
+Se gestiona en `server/participants.json` o editando la base de datos si se prefiere.
+Formato del JSON:
+```json
+[
+  {"id": "1", "name": "Ana Garcia"},
+  {"id": "2", "name": "Carlos Perez"}
+]
+```
+
+---
+
+## 🕹️ Guía: Modo Rifa (`raffle`)
+
+Para usar la versión de rifa simple de premios, debes cambiar de rama.
+
+### 🔄 Cómo cambiar a esta versión
+```bash
+git checkout raffle
+```
+
+### ⚙️ Características Modo Rifa
+- **Sin Backend**: Funciona 100% en el navegador.
+- **Panel Secreto (Frontend)**: Botón oculto en la esquina inferior izquierda (🔧) para resetear ganadores locales.
+- **Lista Simple**: Se configura en `client/src/data/participants.ts`.
+
+---
+
+## 🚀 Instalación y Ejecución
+
+### Opción A: Docker (Recomendado)
+El despliegue es idéntico para ambas ramas.
+
+```bash
+docker-compose up -d --build
+```
+Accede a: `http://localhost:3000`
+
+### Opción B: Desarrollo Local (Rama `main`)
+
+Necesitas correr backend y frontend simultáneamente.
+
+**Terminal 1 (Servidor):**
+```bash
+cd server
+npm install
+npm start
+```
+
+**Terminal 2 (Cliente):**
+```bash
+cd client
+npm install
+npm run dev
+```
+
+---
+
+## 🛠️ Stack Tecnológico (`main`)
+
+- **Frontend**: React, Vite, TypeScript, GSAP.
+- **Backend**: Node.js, Express.
+- **Base de Datos**: SQLite (almacena matches de forma segura).
+
+---
+
+## 🤝 Contribuir
+
+1. Fork del proyecto
+2. Crear rama: `git checkout -b feature/mejora`
+3. Pull Request
+
+---
+
+<p align="center">
+  Hecho con ❤️ para celebrar juntos.
+</p>
